@@ -7,6 +7,7 @@
     text-halo-radius: 0;
     text-size: 6;
     text-wrap-width: 50;
+    
 }
 
 .coast.edge.outer
@@ -309,6 +310,8 @@
     text-halo-radius: 0;
     text-size: 6;
     text-wrap-width: 50;
+    text-placement: line;
+    text-allow-overlap:true;
 
 }
 .amenity.name[amenity=place_of_worship]
@@ -342,10 +345,40 @@ point-allow-overlap: true;
 .leisure.name[sport=tennis]
 {
 point-file: url('img/mapnik/tennis.png');
- point-allow-overlap: true;
+ point-allow-overlap: false;
 }
 .wetland.label
 {
   polygon-pattern-file: url('img/mapnik/marsh.png');
 
 } 
+.aerialway.line
+{
+  line-pattern-file: url('img/mapnik/chair_lift.png');
+}
+
+.pier.area
+{
+    line-width: 0.25;
+    line-color: #ffaaaa;
+    polygon-fill: #ffaaaa;
+    line-join: round;
+}
+
+.rock.area
+{
+  line-width: 0.25;
+  line-color: #ac9393;
+  polygon-fill: #ac9393;
+  line-join: round;
+}
+.bouy.point[bouy='lateral_starboard']
+{
+ point-file: url('img/openseamap/can_green.png');
+ point-allow-overlap: true;
+}
+.bouy.point[bouy='lateral_port']
+{
+ point-file: url('img/openseamap/can_red.png');
+ point-allow-overlap: true;
+}

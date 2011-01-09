@@ -1,4 +1,8 @@
-xt created a postgis database for my work and imported the data into it with osm2pgsql.
+Importing the Data
+
+I first found my area of interest (The lake) using the Slippery map at www.openstreetmap.org and went to the “export” tab. I exported the data in XML format and saved it as lake.xml
+
+I next created a postgis database for my work and imported the data into it with osm2pgsql.
 
 createdb -h localhost penlake
 createlang -h localhost plpgsql penlake
@@ -6,49 +10,62 @@ createlang -h localhost plpgsql penlake
 # Install postigs
 psql -h localhost -f lwpostgis.sql penpake
 psql -h localhost -f spatial_ref_sys.sql penlake
-osm2pgsql -c -d penlake -H localhost -l penlake.osm
+
+#install hstore from contrib
+
+psql -h localhost -f hstore.sql penlake
+osm2pgsql -E epsg:4326 -c -d penlake -H localhost -l penlake.osm
 
 Next I need to import my depth data into the postgis database. I received the depth data as a shapefile that contained one point per depth sounding. This data used the NAD83 UTM Zone 17N projection (epsg: 26917)
 
 
 shp2pgsql -s 26917 2Lakes_100m_soundings_SOUNDG_PointZ.shp public.chs_soundings |psql -h localhost penlake
+Data Conversions
 
-I next open up qgis to check my data.
+I also create a view of chs_soundings that has the depth in feet.  The original depth data is in meters but users of the map have asked for the depths to be in feet. I also create ‘pretty’ version of this.  At 5 feet someone doesn’t car if the depth is 5.25 feet or 5 feet.  We leave the coordinate system in meters for the interpolation routines.
 
-Inside of qgis I select \u201cAdd postGIS\u201d layer and connect to my \u201cpenlake\u201d database. I first add in the \u2018water\u201d by selecting the \u201cplanet_osm_poloygon\u201d table and modifying the query where clause so it contains "natural"='water'. I repeat the process building layers for each of the OSM features that I want to appear on my map. I also select symbols and colours for each layer.
+CREATE view  chs_soundings_feet AS SELECT gid, ST_SetSRID(the_geom,26917) as the_geom, depth*3.28 as depth, CASE WHEN depth*3.28 <=2 THEN depth*3.28 ELSE round(depth*3.28) END as pretty_depth from chs_soundings;
 
-I also add the \u201cchs_soundings\u201d layer from postgis to my qgis map. It is important that you select \u201cEnable on the fly CRS transformation\u201d from the Qgis \u201cProject Properties\u201d menu. The depth data is in a different spatial reference system than the openstreetmap data.
 
-I next have to build Contours for the depth data. qgis has an \u201cinterpolation\u201d plugin. I enable the plugin and select it from the \u201cplugins\u201d menu.
+We also create a layer of obstructions (ie rocks) and give them a depth of zero.
+
+
+CREATE TABLE  osm_obstructions AS SELECT osm_id, ST_Transform(ST_Centroid(way),26917)  as way, 0 as depth FROM planet_osm_polygon where "natural" like '%rock%';
+
+INSERT INTO osm_obstructions (osm_id,way,depth) SELECT osm_id, ST_Transform(way,26917) as way , 0 from planet_osm_point where "natural" LIKE '%rock%';
+
+select populate_geometry_columns();
+
+I now start up qgis to view the data.
+
+Inside of qgis I go to “Add PostGIS” layer and connect to my “penlake” database.  I then  add the “chs_soundings_feet” layer from postgis to my qgis map. It is important that you select “Enable on the fly CRS transformation” from the Qgis “Project Properties” menu in case different layers have different coordinate systems.
 
 To create the contour lines I first need to create a version of the lake poloygon that shows 0 depth on the lake border. I do this as follows (via psql)
 
-CREATE TABLE lake_shape_depth AS SELECT gid,way,0 FROM planet_osm_polygon where
-"natural"='water';
+CREATE table lake_shape_depth AS SELECT 1,ST_Transform(ST_union(way),26917) as way ,0 as depth FROM planet_osm_polygon where
+"natural"='water' and osm_id IN (-1109109,-1109524);
+select populate_geometry_columns();
 
-I then add lake_shape_depth as a postgis layer in qgis
+This query extracts the osm objects for Peninsula and Fairy lakes from the planet_osm_polygon and builds a geometry that covers there shape. It is important that we transform the output to a meters based coordinate system or the interpolation routines won’t behave as expected.
+Interpolation
+
+I then add lake_shape_depth as a postgis layer in qgis along with chs_soundings_feet (from the “Add PostGIS Layer” menu in qgis)
+
+I next have to build Contours for the depth data. qgis has an “interpolation” plugin. I enable the plugin and select it from the “plugins” menu.
 
 I next start up the qgis interpolation plugin. (under the plugins menu in qgis, if interpolation plugin is installed and enabled)
 
-I set the extends to cover the two lakes that I have depth data for and set the output file to be \u201clake_depth.tif\u201d
-I select \u201cchs_soundings\u201d as a vector layer with the interpolation attribute \u201cDepth\u201d and add it.
-I then select \u201clake_shape_depth\u201d as an additional layer. After I add that layer I change the \u201cType\u201d of lake_shape_depth to be \u201cStructure Lines\u201d and leave the type of \u201cchs_soundings\u201d as \u201cpoints\u201d. This tells the TIN interpolation routines that the shore of the lake (the geometry of the lake_shape_depths polygons) has a depth of zero and forms the structure of the feature. I select \u201cOk\u201d to interpolate the data.
+I set the extends to cover the two lakes that I have depth data for and set the output file to be “lake_depth.tif” I select “chs_soundings_feet” as a vector layer with the interpolation attribute “Depth” and add it. I then select “lake_shape_depth” as an additional layer. After I add that layer I change the “Type” of lake_shape_depth to be “Structure Lines” and leave the type of “chs_soundings” as “points”. This tells the  interpolation routines that the shore of the lake (the geometry of the lake_shape_depths polygons) has a depth of zero and forms the structure of the feature.   I also add the “osm_obstructions” layer as a “points” layer. I select “Ok” to interpolate the data.
 
-This produces a GeoTiff file containing a digital elevation map (DEM) called \u201clake_depth.tif\u201d that I can then use an an input to the gdal_countor program and import that into postgis. I create contour lines that represents every 5 meters of depth change, this seems to look good for this lake. Different values will look better for different lakes, experiment.
+This produces a GeoTiff file containing a digital elevation map (DEM) called “lake_depth.tif” that I can then use an an input to the gdal_countor program and import that into postgis. I create contour lines that represents every 5 feet  of depth change, this seems to look good for this lake. Different values will look better for different lakes, experiment.
 
 gdal_contour -a depth -i 5 lake_depth.tif contour.shp
 shp2pgsql -s 26917 contour.shp public.contour|psql -h localhost penlake
 
-I then create a version of the contour data that is filtered so that a contour line does not cross the shorelines. At times the interpolation routines create interpolated data points that fall outside of the lake boundary (I\u2019m not exactly sure why). If I look at the counter data in qgis I see interpolation lines that cross the shoreline particularly near bays. I run a postgis query that only gives me the portions of the contour lines that lie within the lake polygons.
+I then create a version of the contour data that is filtered so that a contour line does not cross the shorelines. At times the interpolation routines create interpolated data points that fall outside of the lake boundary (I’m not exactly sure why). If I look at the counter data in qgis I see interpolation lines that cross the shoreline particularly near bays. I run a postgis query that only gives me the portions of the contour lines that lie within the lake polygons.
 
-create table contour_filtered as SELECT gid, ST_Intersection(the_geom, (SELECT ST_Transform(ST_Collect(way),26917) from planet_osm_polygon where "natural"='water' )) as the_geom , depth FROM contour;
 
-I then add contour_filetered to the map by adding it as a layer in qgis.
-
-WhenI I render the \u201cdepth\u201d attribute from the chs_soundings layer on my map (Labels under layer properties) the data doesn\u2019t look pretty because it is printing numbers like \u201c25.24399\u2033 At 25 meters of depth I don\u2019t care about the decimal places. I create a \u2018pretty\u2019 depth column with the following SQL
-
-ALTER TABLE chs_soundings add column pretty_depth float8;
-UPDATE chs_soundings SET pretty_depth=depth WHERE depth =2;
-
+create view contour_filtered as SELECT gid, ST_Intersection(the_geom, (SELECT ST_Transform(ST_Collect(way),26917) from lake_shape_depth )) as the_geom , depth FROM contour;
+select populate_geometry_columns();
 
 

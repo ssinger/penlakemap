@@ -32,11 +32,11 @@
     <!ENTITY extent "-180,-89.9,180,89.9">
 
     <!-- database settings -->
-    <!ENTITY host "localhost">
+    <!ENTITY host "/home/ssinger/penlakemap/">
     <!ENTITY port "5432">
     <!ENTITY user "ssinger">
     <!ENTITY password "">
-    <!ENTITY dbname "penlake">
+    <!ENTITY dbname "penlakemap">
 ]>
 <Map srs="&map_srs;">
     <Stylesheet>
@@ -492,7 +492,7 @@
             <Parameter name="password">&password;</Parameter>
             <Parameter name="dbname">&dbname;</Parameter>
             <Parameter name="table"><![CDATA[
-                   (SELECT gid,the_geom ,round(depth::numeric,2) as filtered_depth  FROM chs_soundings where depth<5) as depth]]></Parameter>
+                   (SELECT gid,the_geom ,(round(depth::numeric,2)*100)::integer/100.0 as filtered_depth  FROM chs_soundings_feet where depth < 5 )  as depth]]></Parameter>
 
                         
 	</Datasource>
@@ -506,8 +506,10 @@
             <Parameter name="user">&user;</Parameter>
             <Parameter name="password">&password;</Parameter>
             <Parameter name="dbname">&dbname;</Parameter>
+<!--	    <Parameter name="estimate_extent">&estimate_extent;</Parameter>
+	    <Parameter name="extent">&extent;</Parameter> -->
             <Parameter name="table"><![CDATA[
-                   (SELECT gid,the_geom  ,depth   FROM contour ) as depth]]></Parameter>
+                   (SELECT gid,the_geom  ,depth   FROM contour_filtered) as depth]]></Parameter>
 
                         
 	</Datasource>
@@ -565,4 +567,60 @@
                  ORDER BY z_order ASC) AS wetland]]></Parameter>
         </Datasource>
     </Layer>
+   <Layer class="aerialway line" srs="&osm_srs;">
+        <Datasource>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="host">&host;</Parameter>
+            <Parameter name="port">&port;</Parameter>
+            <Parameter name="user">&user;</Parameter>
+            <Parameter name="password">&password;</Parameter>
+            <Parameter name="dbname">&dbname;</Parameter>
+            <Parameter name="estimate_extent">&estimate_extent;</Parameter>
+            <Parameter name="extent">&extent;</Parameter>
+            <Parameter name="table">(SELECT * FROM planet_osm_line WHERE aerialway is not null ORDER BY z_order ASC) AS aerialway</Parameter>
+        </Datasource>
+    </Layer>
+ <Layer class="pier area" srs="&osm_srs;">
+        <Datasource>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="host">&host;</Parameter>
+            <Parameter name="port">&port;</Parameter>
+            <Parameter name="user">&user;</Parameter>
+            <Parameter name="password">&password;</Parameter>
+            <Parameter name="dbname">&dbname;</Parameter>
+            <Parameter name="estimate_extent">&estimate_extent;</Parameter>
+            <Parameter name="extent">&extent;</Parameter>
+            <Parameter name="table">(SELECT * FROM planet_osm_polygon WHERE "man_made"='pier' ORDER BY z_order ASC) AS pier</Parameter>
+        </Datasource>
+    </Layer>
+
+ <Layer class="rock area" srs="&osm_srs;">
+        <Datasource>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="host">&host;</Parameter>
+            <Parameter name="port">&port;</Parameter>
+            <Parameter name="user">&user;</Parameter>
+            <Parameter name="password">&password;</Parameter>
+            <Parameter name="dbname">&dbname;</Parameter>
+            <Parameter name="estimate_extent">&estimate_extent;</Parameter>
+            <Parameter name="extent">&extent;</Parameter>
+            <Parameter name="table">((SELECT osm_id,way,"natural" FROM planet_osm_polygon WHERE "natural" LIKE '%rock%' ORDER BY z_order ASC)  UNION (SELECT osm_id,ST_Buffer(way,0.001) as way, "natural" FROM planet_osm_point where "natural" LIKE '%rock%'))  AS pier</Parameter>
+        </Datasource>
+    </Layer>
+
+<Layer class="bouy point" srs="&osm_srs;">
+        <Datasource>
+            <Parameter name="type">postgis</Parameter>
+            <Parameter name="host">&host;</Parameter>
+            <Parameter name="port">&port;</Parameter>
+            <Parameter name="user">&user;</Parameter>
+            <Parameter name="password">&password;</Parameter>
+            <Parameter name="dbname">&dbname;</Parameter>
+            <Parameter name="estimate_extent">&estimate_extent;</Parameter>
+            <Parameter name="extent">&extent;</Parameter>
+            <Parameter name="table">(SELECT osm_id,way,tags->'bouy' as bouy FROM
+planet_osm_point where tags->'bouy' like 'lateral%' order by z_order) as bouy</Parameter>
+        </Datasource>
+    </Layer>
+
 </Map>
