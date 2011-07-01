@@ -450,14 +450,19 @@
             <Parameter name="estimate_extent">&estimate_extent;</Parameter>
             <Parameter name="extent">&extent;</Parameter>
             <Parameter name="table"><![CDATA[
-                (SELECT *,
+                (SELECT way,name,z_order,
                         (CASE WHEN round(way_area * 1000000) >= 20 THEN 'large'
                               WHEN round(way_area * 1000000) >= 1 THEN 'medium'
                               ELSE 'small' END) AS size,
                         REGEXP_REPLACE(UPPER(name), '(.)', E'\\1\xC2\xA0\xC2\xA0', 'g') AS name_stretched
                  FROM planet_osm_polygon
                  WHERE landuse IN ('reservoir', 'water')
-                    OR "natural" IN ('lake', 'water', 'land')
+                    OR "natural" IN ('lake', 'water', 'land','bay')
+		UNION (SELECT way,name,z_order, 'small' ,
+REGEXP_REPLACE(UPPER(name), '(.)', E'\\1\xC2\xA0\xC2\xA0', 'g') AS name_stretched
+FROM planet_osm_point WHERE
+                      "natural" IN ('lake','water','land','bay')
+                       OR landuse IN ('reservoir','water') )
                  ORDER BY z_order ASC) AS water]]></Parameter>
         </Datasource>
     </Layer>
@@ -604,7 +609,7 @@
             <Parameter name="dbname">&dbname;</Parameter>
             <Parameter name="estimate_extent">&estimate_extent;</Parameter>
             <Parameter name="extent">&extent;</Parameter>
-            <Parameter name="table">((SELECT osm_id,way,"natural" FROM planet_osm_polygon WHERE "natural" LIKE '%rock%' ORDER BY z_order ASC)  UNION (SELECT osm_id,ST_Buffer(way,0.001) as way, "natural" FROM planet_osm_point where "natural" LIKE '%rock%'))  AS pier</Parameter>
+            <Parameter name="table">((SELECT osm_id,way,"natural" FROM planet_osm_polygon WHERE "natural" LIKE '%rock%' ORDER BY z_order ASC)  UNION (SELECT osm_id,ST_Buffer(way,0.0001) as way, "natural" FROM planet_osm_point where "natural" LIKE '%rock%'))  AS pier</Parameter>
         </Datasource>
     </Layer>
 

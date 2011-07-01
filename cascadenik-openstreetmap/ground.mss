@@ -152,7 +152,6 @@
     text-face-name: "DejaVu Sans Book";
     text-fill: #000;
     text-placement: point;
-    text-halo-radius: 2;
 }
 
 .water.label[zoom>=13][zoom<=15][size=large] name,
@@ -273,7 +272,11 @@
 
 .water.label name
 {
-    text-halo-fill: #affcff;
+    /*text-halo-fill: #affcff; */
+    text-placement: point;
+    text-fill: #000;
+    text-size: 9;
+    text-wrap-width: 50;
 }
 
 .parklike.label name
@@ -365,20 +368,23 @@ point-file: url('img/mapnik/tennis.png');
     line-join: round;
 }
 
-.rock.area
-{
-  line-width: 0.25;
-  line-color: #ac9393;
-  polygon-fill: #ac9393;
-  line-join: round;
-}
+
 .bouy.point[bouy='lateral_starboard']
 {
  point-file: url('img/openseamap/can_green.png');
  point-allow-overlap: true;
 }
+
 .bouy.point[bouy='lateral_port']
 {
  point-file: url('img/openseamap/can_red.png');
  point-allow-overlap: true;
+}
+
+.rock.area
+{
+  line-width: 0.25;
+  line-color: #716e56;
+  polygon-fill: #715e56;
+  line-join: round;
 }
