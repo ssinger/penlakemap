@@ -1,0 +1,310 @@
+{
+  "bounds": [
+    -79.324,
+    45.2874,
+    -78.9519,
+    45.4909
+  ],
+  "center": [
+    -79.1057,
+    45.3473,
+    11
+  ],
+  "format": "png",
+  "interactivity": false,
+  "minzoom": 10,
+  "maxzoom": 16,
+  "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+  "Stylesheet": [
+    "style.mss"
+  ],
+  "Layer": [
+    {
+      "geometry": "polygon",
+      "Datasource": {
+        "type": "postgis",
+        "table": "(SELECT osm_id, way, name, \"natural\" , ST_Area(way) as area from planet_osm_polygon where \"natural\"='land' or \"natural\"='rock' or \"natural\"='bare_rock' union select osm_id, st_buffer(way,0.00001) as way, name, \"natural\", st_area(st_buffer(way,0.00001)) as area from planet_osm_point where \"natural\"='land' or \"natural\"='rock')  as data",
+        "extent": "",
+        "key_field": "osm_id",
+        "geometry_field": "way",
+        "host": "localhost",
+        "dbname": "penlakemap"
+      },
+      "id": "land-polygon",
+      "class": "land",
+      "srs-name": "WGS84",
+      "srs": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs",
+      "name": "land-polygon"
+    },
+    {
+      "geometry": "polygon",
+      "Datasource": {
+        "type": "postgis",
+        "table": "(SELECT * FROM planet_osm_polygon where building is not null) as data",
+        "extent": "",
+        "key_field": "osm_id",
+        "geometry_field": "way",
+        "host": "localhost",
+        "dbname": "penlakemap"
+      },
+      "id": "building-polygon",
+      "class": "building",
+      "srs-name": "WGS84",
+      "srs": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs",
+      "name": "building-polygon"
+    },
+    {
+      "geometry": "point",
+      "Datasource": {
+        "type": "postgis",
+        "table": "(SELECT * FROM planet_osm_point where aeroway is not null) as data\n",
+        "extent": "",
+        "key_field": "osm_id",
+        "geometry_field": "way",
+        "host": "localhost",
+        "dbname": "penlakemap"
+      },
+      "id": "aeroway-point",
+      "class": "aeroway",
+      "srs-name": "WGS84",
+      "srs": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs",
+      "name": "aeroway-point"
+    },
+    {
+      "geometry": "polygon",
+      "Datasource": {
+        "type": "postgis",
+        "table": "(SELECT * FROM planet_osm_polygon where \"natural\"='water') as data",
+        "extent": "",
+        "key_field": "osm_id",
+        "geometry_field": "way",
+        "host": "localhost",
+        "dbname": "penlakemap",
+        "id": "planetosmpolygonwher",
+        "project": "oakville",
+        "srs": null
+      },
+      "id": "water-poly",
+      "class": "water",
+      "srs-name": "WGS84",
+      "srs": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs",
+      "name": "water-poly"
+    },
+    {
+      "geometry": "linestring",
+      "Datasource": {
+        "type": "postgis",
+        "table": "(select gid,the_geom,depth from contour_filtered) as depth",
+        "extent": "",
+        "key_field": "gid",
+        "geometry_field": "the_geom",
+        "host": "localhost",
+        "dbname": "penlakemap",
+        "id": "depth-line",
+        "project": "oakville",
+        "srs": null
+      },
+      "id": "depth-line",
+      "class": "",
+      "srs-name": "custom",
+      "srs": "+proj=utm +zone=17 +ellps=GRS80 +datum=NAD83 +units=m +no_defs",
+      "name": "depth-line"
+    },
+    {
+      "geometry": "polygon",
+      "Datasource": {
+        "type": "postgis",
+        "table": "(SELECT * FROM planet_osm_polygon where man_made='pier') as data",
+        "extent": "",
+        "key_field": "osm_id",
+        "geometry_field": "way",
+        "host": "localhost",
+        "dbname": "penlakemap"
+      },
+      "id": "pier-polygon",
+      "class": "pier",
+      "srs-name": "WGS84",
+      "srs": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs",
+      "name": "pier-polygon"
+    },
+    {
+      "geometry": "polygon",
+      "Datasource": {
+        "type": "postgis",
+        "table": "(SELECT * FROM planet_osm_polygon where \"natural\"='wetland') as data",
+        "extent": "",
+        "key_field": "osm_id",
+        "geometry_field": "way",
+        "host": "localhost",
+        "dbname": "penlakemap"
+      },
+      "id": "wetland-polygon",
+      "class": "wetland",
+      "srs-name": "WGS84",
+      "srs": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs",
+      "name": "wetland-polygon"
+    },
+    {
+      "geometry": "linestring",
+      "Datasource": {
+        "type": "postgis",
+        "table": "(select * from planet_osm_line where waterway is not null) as data",
+        "extent": "",
+        "key_field": "osm_id",
+        "geometry_field": "way",
+        "host": "localhost",
+        "dbname": "penlakemap"
+      },
+      "id": "water-line",
+      "class": "water",
+      "srs-name": "WGS84",
+      "srs": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs",
+      "name": "water-line"
+    },
+    {
+      "geometry": "polygon",
+      "Datasource": {
+        "type": "postgis",
+        "table": "(SELECT * FROM planet_osm_polygon where \"natural\"='beach') as data",
+        "extent": "",
+        "key_field": "osm_id",
+        "geometry_field": "way",
+        "host": "localhost",
+        "dbname": "penlakemap"
+      },
+      "id": "beach-poly",
+      "class": "beach",
+      "srs-name": "WGS84",
+      "srs": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs",
+      "name": "beach-poly"
+    },
+    {
+      "geometry": "point",
+      "Datasource": {
+        "type": "postgis",
+        "table": "(SELECT ST_Centroid(way) as way, osm_id, sport ,name FROM planet_osm_polygon where sport is not null union select way,osm_id,sport,name from planet_osm_point where sport is not null)  as data",
+        "extent": "",
+        "key_field": "osm_id",
+        "geometry_field": "way",
+        "host": "localhost",
+        "dbname": "penlakemap"
+      },
+      "id": "sport-point",
+      "class": "sport",
+      "srs-name": "WGS84",
+      "srs": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs",
+      "name": "sport-point"
+    },
+    {
+      "geometry": "polygon",
+      "Datasource": {
+        "type": "postgis",
+        "table": "(SELECT * FROM planet_osm_polygon where leisure is not null) as data",
+        "extent": "",
+        "key_field": "osm_id",
+        "geometry_field": "way",
+        "host": "localhost",
+        "dbname": "penlakemap"
+      },
+      "id": "leisure-poly",
+      "class": "leisure",
+      "srs-name": "WGS84",
+      "srs": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs",
+      "name": "leisure-poly"
+    },
+    {
+      "geometry": "linestring",
+      "Datasource": {
+        "type": "postgis",
+        "table": "(SELECT *  FROM planet_osm_line where highway  in ('primary','secondary','tertiary','residential','unclassified','motorway','motorway_link','seconary_link','primary_link') )as data",
+        "extent": "",
+        "key_field": "osm_id",
+        "geometry_field": "way",
+        "host": "localhost",
+        "dbname": "penlakemap",
+        "id": "road-line",
+        "project": "oakville",
+        "srs": null
+      },
+      "id": "road-line",
+      "class": "road",
+      "srs-name": "WGS84",
+      "srs": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs",
+      "name": "road-line"
+    },
+    {
+      "geometry": "point",
+      "Datasource": {
+        "type": "postgis",
+        "table": "(SELECT osm_id, way, name,tourism from planet_osm_point where tourism is not null) as data\n",
+        "extent": "",
+        "key_field": "osm_id",
+        "geometry_field": "way",
+        "host": "localhost",
+        "dbname": "penlakemap"
+      },
+      "id": "tourism",
+      "class": "tourism",
+      "srs-name": "WGS84",
+      "srs": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs",
+      "name": "tourism"
+    },
+    {
+      "geometry": "point",
+      "Datasource": {
+        "type": "postgis",
+        "table": "( SELECT st_centroid(way) as way, name , osm_id  FROM planet_osm_polygon where \"natural\"='land' and name is not null union select way, name,osm_id from planet_osm_point where \"natural\"='land' and name is not null ) as data",
+        "extent": "",
+        "key_field": "osm_id",
+        "geometry_field": "way",
+        "host": "localhost",
+        "dbname": "penlakemap"
+      },
+      "id": "land-names",
+      "class": "land-names",
+      "srs-name": "WGS84",
+      "srs": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs",
+      "name": "land-names"
+    },
+    {
+      "geometry": "point",
+      "Datasource": {
+        "type": "postgis",
+        "table": "(SELECT gid,the_geom ,(round(depth::numeric,2)*100)::integer/100.0 as filtered_depth  FROM chs_soundings_feet where depth < 5 )  as depth",
+        "extent": "",
+        "key_field": "gid",
+        "geometry_field": "the_geom",
+        "host": "localhost",
+        "dbname": "penlakemap",
+        "id": "depth-label",
+        "project": "oakville",
+        "srs": null
+      },
+      "id": "depth-label",
+      "class": "",
+      "srs-name": "custom",
+      "srs": "+proj=utm +zone=17 +ellps=GRS80 +datum=NAD83 +units=m +no_defs",
+      "name": "depth-label"
+    },
+    {
+      "geometry": "point",
+      "Datasource": {
+        "type": "postgis",
+        "table": "(select osm_id,way,tags->'bouy' as bouy from planet_osm_point where tags->'bouy' like 'lateral%' ) as data",
+        "extent": "",
+        "key_field": "osm_id",
+        "geometry_field": "way",
+        "host": "localhost",
+        "dbname": "penlakemap"
+      },
+      "id": "bouy",
+      "class": "bouy",
+      "srs-name": "WGS84",
+      "srs": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs",
+      "name": "bouy"
+    }
+  ],
+  "name": "Penlake",
+  "description": "",
+  "attribution": ""
+}
