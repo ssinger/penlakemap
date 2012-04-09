@@ -76,7 +76,7 @@ Map {
     
   
   }
-  
+  ::label {
   [highway='primary'],[highway='trunk'],[highway='motorway'] {
     text-size: 20;
     text-name: "[name]";
@@ -104,9 +104,8 @@ Map {
         text-allow-overlap: false;
       }
     }  
- 
-
-}
+  }
+}  
 .leisure[leisure='golf_course'] {
   polygon-fill:#00ff33;
 }
@@ -125,6 +124,7 @@ Map {
       text-allow-overlap: true;
       text-dy: 10;
       text-face-name: @serif;
+   
    }
  }
 
@@ -224,26 +224,26 @@ Map {
   
 }
 
-
+/**
 #depth-label {
   [zoom >= 16] {
   text-name: "[filtered_depth]";
   text-face-name: @serif;
   text-size: 12;
-  text-spacing: 100;
+  text-min-distance: 1000;
   text-placement: point;
   text-fill: #000000;
   text-allow-overlap: true;
   }
 }
-
-.bouy {
+**/
+.buoy {
   point-allow-overlap: true;
-  [bouy='lateral_port']
+  [buoy='lateral_port']
   {
     point-file: url('img/openseamap/can_red.png');
   }
-  [bouy='lateral_starboard']
+  [buoy='lateral_starboard']
   {
       point-file: url('img/openseamap/can_green.png');
   }
