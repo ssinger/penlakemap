@@ -243,11 +243,24 @@ Map {
   point-allow-overlap: true;
   [buoy='lateral_port']
   {
-    point-file: url('img/openseamap/can_red.png');
+    
+    point-file: url('img/openseamap/Lateral_Pillar_Red.svg');
+      [zoom >= 16] {
+        point-transform: 'scale(0.2)';
+      }
+      [zoom < 16 ] {
+        point-transform: 'scale(0.1)';
+      }
   }
   [buoy='lateral_starboard']
   {
-      point-file: url('img/openseamap/can_green.png');
+      point-file: url('img/openseamap/Lateral_Pillar_Green.svg');
+      [zoom >= 16] {
+        point-transform: 'scale(0.2)';
+      }
+      [zoom < 16 ] {
+        point-transform: 'scale(0.1)';
+      }
   }
 }
 
