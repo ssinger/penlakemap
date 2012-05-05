@@ -200,16 +200,18 @@ Map {
 
 #depth-line {
   [zoom >=16] {
+    ::label {
+      text-name: "[depth]";
+      text-face-name: @serif_italic;
+      text-size: 16;
+      text-spacing: 900;
+      text-placement: line;
+      text-fill: #000000;
+      text-allow-overlap: true;
+      text-label-position-tolerance:6;
+      text-dy: 3;
+    }
     line-width:1;
-    text-name: "[depth]";
-    text-face-name: @serif;
-    text-size: 16;
-    text-spacing: 900;
-    text-placement: line;
-    text-fill: #000000;
-    text-allow-overlap: true;
-    text-label-position-tolerance:6;
-    text-dy: 3;
    }
   [zoom < 16] {
     [depth=20],[depth=40],[depth=60],[depth=80],[depth=100],[depth=120] {
@@ -248,3 +250,16 @@ Map {
       point-file: url('img/openseamap/can_green.png');
   }
 }
+
+.marina {
+    point-file: url('img/transport_marina.n.24.png');
+    text-name: "[name]";
+    text-fill: #000000;
+    text-allow-overlap: true;
+    text-dy: 15;
+    text-face-name: @serif;
+ }
+.rocks {
+  point-file: url('img/NChart_ECDIS_Rock_Awash.svg');
+  point-transform: 'scale(0.1)';
+ }
