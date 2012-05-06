@@ -1,19 +1,15 @@
 This project stores the code and styles for the PenLakeMap.
 
+The Peninsula lake Map is a map of Peninsula Lake in Huntsville, Ontario
+Canada.
+
 The project is intended to consist of
 
-1) The cascadnik styles used to generate the map.  They are based on 
-styles included with Cascadnik but modified.
+1)  A TileMill project and associated Carto stylesheet.
 
 2) Instructions + SQL for processing the CHS data and getting it into a 
 layer suitable for use with Mapnik.
 
-What is NOT included here
+3) The generated map as a PDF, SVG and PNG.
 
-1) Source code for Cascadnik
-2) Source code for Mapnik
-3) Data (This might change)
-
-This is a work in progress
-
-
+This map is based on OpenStreetMap data
